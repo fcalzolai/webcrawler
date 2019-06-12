@@ -1,25 +1,33 @@
 package com.webcrawler.service;
 
+import com.webcrawler.domain.Finder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 @Service
 public class Crawler {
 
-    public void crawler(String url) throws InterruptedException {
+    @Autowired
+    private Finder finder;
+
+    public void crawler(String url) {
         WebClient webClient = WebClient.create(url);
         Mono<String> result = webClient.get()
                 .retrieve()
                 .bodyToMono(String.class);
-        result.subscribe(Crawler::handleResponse);
-        System.out.println("After subscribe");
-        //wait for a while for the response
-        Thread.sleep(1000);
+        result.subscribe(this::handleResponse);
     }
 
-    private static void handleResponse(String s) {
-        System.out.println("handle response");
-        System.out.println(s);
+    private void handleResponse(String s) {
+        try {
+            finder.scan(new ByteArrayInputStream(s.getBytes()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
