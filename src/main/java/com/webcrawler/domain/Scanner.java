@@ -1,6 +1,7 @@
 package com.webcrawler.domain;
 
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,7 +23,12 @@ public class Scanner {
                 .retrieve()
                 .bodyToMono(String.class)
                 .subscribe(this::handleResponse, t -> {
-                    t.printStackTrace();
+                    if (t instanceof WebClientResponseException) {
+                        WebClientResponseException o = (WebClientResponseException) t;
+                        System.err.println(o.getRequest().getURI());
+                    } else {
+                        t.printStackTrace();
+                    }
                 });
     }
 

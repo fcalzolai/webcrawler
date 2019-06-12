@@ -2,19 +2,16 @@ package com.webcrawler.domain;
 
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
 
 public class ScanManagerTest {
 
-    private static final String BASE_URL = "https://www.lloydsbank.com/";
+    private static final String BASE_URL = "https://www.lloydsbank.com";
 
     @BeforeClass
     public static void beforeClass(){
@@ -31,7 +28,7 @@ public class ScanManagerTest {
 //        await().atLeast(10, TimeUnit.MINUTES)
 //               .until(() -> scanManager.getToBeScanned().isEmpty());
         scanManager.shoutDown();
-        Map<String, List<String>> links = scanManager.getLinks();
+        Map<String, Set<String>> links = scanManager.getLinks();
         System.out.println(links);
     }
 }

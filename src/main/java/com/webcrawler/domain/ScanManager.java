@@ -1,9 +1,14 @@
 package com.webcrawler.domain;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,23 +18,31 @@ import java.util.concurrent.Executors;
 public class ScanManager {
 
     private static final int N_THREADS = 1;
+    private static final int CAPACITY = 200;
 
     private final String baseUrl;
     private final BlockingQueue<String> toBeScanned;
-    private final Map<String, List<String>> links;
+    private final Map<String, Set<String>> links;
     private final ExecutorService executor;
 
     public ScanManager(String baseUrl) {
+        setLogLevel();
         this.baseUrl = baseUrl;
         links = new ConcurrentHashMap<>();
-        toBeScanned = new ArrayBlockingQueue<>(200);
+        toBeScanned = new ArrayBlockingQueue<>(CAPACITY);
         executor = Executors.newFixedThreadPool(N_THREADS);
 
         initThreads();
-        newLinkFound(baseUrl, "");
+        newLinkFound(baseUrl, "/");
     }
 
-    public Map<String, List<String>> getLinks() {
+    private void setLogLevel() {
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getLogger("io.netty").setLevel(Level.INFO);
+        loggerContext.getLogger("reactor.netty").setLevel(Level.INFO);
+    }
+
+    public Map<String, Set<String>> getLinks() {
         return new HashMap<>(links);
     }
 
@@ -39,17 +52,25 @@ public class ScanManager {
 
     public void newLinkFound(String src, String dest) {
         if(isInternalLink(dest)) {
-            if (!alreadyScanned(dest)) { //TODO execute this in a new Thread to avoid to be blocked
-                toBeScanned.add(dest);
+            if (shouldBeScanned(dest)) {
+                new Thread(() -> {
+                    try {
+                        toBeScanned.put(dest);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
             }
 
-            links.computeIfAbsent(src, s -> new LinkedList<>())
+            links.computeIfAbsent(src, s -> new HashSet<>())
                     .add(dest);
+            System.err.println(src + " --> " + dest);
         }
     }
 
-    private boolean alreadyScanned(String url){
-        return links.keySet().stream().anyMatch(s -> s.equals(url));
+    private boolean shouldBeScanned(String url){
+        return !url.endsWith(".css")
+                && !links.keySet().contains(url);
     }
 
     private void initThreads() {
