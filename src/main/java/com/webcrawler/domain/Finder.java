@@ -12,7 +12,7 @@ public class Finder {
 
     private Consumer<String> consumer;
 
-    public Finder(Consumer<String> consumer) {
+    public void setConsumer(Consumer<String> consumer) {
         this.consumer = consumer;
     }
 

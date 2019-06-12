@@ -16,11 +16,14 @@ public class FinderTest {
         InputStream is = getClass().getClassLoader().getResourceAsStream(FILE_TO_SCAN);
 
         AtomicInteger count = new AtomicInteger(0);
-        Finder finder= new Finder(s -> {
+        Finder finder = new Finder();
+        finder.setConsumer(s -> {
             System.out.println(s);
             count.incrementAndGet();
         });
+
         finder.scan(is);
         Assert.assertTrue(count.get() > 0);
+        System.out.println(count);
     }
 }
