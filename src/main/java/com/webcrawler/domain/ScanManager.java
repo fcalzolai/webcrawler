@@ -1,7 +1,6 @@
 package com.webcrawler.domain;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,7 @@ public class ScanManager {
         executor = Executors.newFixedThreadPool(N_THREADS);
 
         initThreads();
-        newLinkFound(baseUrl, "/");
+        newLinkFound(baseUrl, "");
     }
 
     private void setLogLevel() {
@@ -64,22 +63,27 @@ public class ScanManager {
 
             links.computeIfAbsent(src, s -> new HashSet<>())
                     .add(dest);
-            System.err.println(src + " --> " + dest);
+            System.err.println(Thread.currentThread().getName()+"-["+toBeScanned.size()+"]"+src + " --> " + dest);
         }
     }
 
     private boolean shouldBeScanned(String url){
         return !url.endsWith(".css")
+                && !url.endsWith(".ico")
+                && !url.endsWith(".gif")
                 && !links.keySet().contains(url);
     }
 
     private void initThreads() {
         for (int i = 0; i < N_THREADS; i++) {
-            executor.execute(() -> {
-                try {
-                    scanFirstElement();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            executor.execute(new Thread("T"+i) {
+                @Override
+                public void run() {
+                    try {
+                        scanFirstElement();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         }

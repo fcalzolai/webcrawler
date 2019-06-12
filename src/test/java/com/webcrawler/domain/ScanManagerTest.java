@@ -11,7 +11,9 @@ import java.util.concurrent.TimeUnit;
 
 public class ScanManagerTest {
 
-    private static final String BASE_URL = "https://www.lloydsbank.com";
+    private static final String LLOYDS = "https://www.lloydsbank.com/";
+    private static final String HALIFAX = "https://www.halifax.co.uk/";
+    private static final String REP = "https://www.repubblica.it/";
 
     @BeforeClass
     public static void beforeClass(){
@@ -22,13 +24,13 @@ public class ScanManagerTest {
 
     @Test
     public void test() throws InterruptedException {
-        ScanManager scanManager = new ScanManager(BASE_URL);
+        ScanManager scanManager = new ScanManager(REP);
 
-        Thread.sleep(30_000);
+        Thread.sleep(300_000);
 //        await().atLeast(10, TimeUnit.MINUTES)
 //               .until(() -> scanManager.getToBeScanned().isEmpty());
         scanManager.shoutDown();
         Map<String, Set<String>> links = scanManager.getLinks();
-        System.out.println(links);
+        System.out.println(links.size());
     }
 }
