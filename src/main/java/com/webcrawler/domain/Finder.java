@@ -41,8 +41,25 @@ public class Finder {
     }
 
     private String extractLinkFromHref(String line, String word, int index) {
-        int start = line.indexOf('"', index+word.length());
+        int startDoubleQuote = line.indexOf('"', index+word.length());
+        int startSingleQuote = line.indexOf('\'', index+word.length());
+        int start = minGreaterThanZero(startDoubleQuote, startSingleQuote);
         int end = line.indexOf('"', start+1);
         return line.substring(start+1, end);
+    }
+
+    private int minGreaterThanZero(int val1, int val2) {
+        if(val1 > 0
+           && val2 > 0) {
+            return Math.min(val1, val2);
+        } else if (val1 < 0
+            && val2 > 0) {
+            return val2;
+        } else if (val1 > 0
+                && val2 < 0) {
+            return val1;
+        } else {
+            return val1;
+        }
     }
 }

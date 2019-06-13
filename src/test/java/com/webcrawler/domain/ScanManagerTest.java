@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
+
 public class ScanManagerTest {
 
     private static final String LLOYDS = "https://www.lloydsbank.com/";
@@ -23,12 +25,12 @@ public class ScanManagerTest {
     }
 
     @Test
-    public void test() throws InterruptedException {
+    public void test() {
         ScanManager scanManager = new ScanManager(REP);
 
-        Thread.sleep(300_000);
-//        await().atLeast(10, TimeUnit.MINUTES)
-//               .until(() -> scanManager.getToBeScanned().isEmpty());
+        await().atLeast(3, TimeUnit.SECONDS)
+                .atMost(30000, TimeUnit.SECONDS)
+               .until(() -> scanManager.getToBeScanned().isEmpty());
         scanManager.shoutDown();
         Map<String, Set<String>> links = scanManager.getLinks();
         System.out.println(links.size());

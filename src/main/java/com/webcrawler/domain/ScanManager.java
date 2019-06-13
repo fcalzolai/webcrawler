@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 
 public class ScanManager {
 
-    private static final int N_THREADS = 1;
+    private static final int N_THREADS = 2;
     private static final int CAPACITY = 200;
 
     private final String baseUrl;
@@ -32,7 +32,7 @@ public class ScanManager {
         executor = Executors.newFixedThreadPool(N_THREADS);
 
         initThreads();
-        newLinkFound(baseUrl, "");
+        toBeScanned.add(baseUrl);
     }
 
     private void setLogLevel() {
@@ -90,14 +90,15 @@ public class ScanManager {
     }
 
     private boolean isInternalLink(String dest) {
-        if(dest.startsWith("/"))
-            return true;
-
-        if(dest.startsWith("http")) {
+        if(dest.startsWith("http")
+                || dest.startsWith("//")) {
             return dest.contains(baseUrl);
         }
 
-        return true;
+        if(dest.startsWith("/"))
+            return true;
+
+        return false;
     }
 
     private void scanFirstElement() throws InterruptedException {
