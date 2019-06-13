@@ -7,15 +7,17 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.io.ByteArrayInputStream;
 
-public class Scanner {
+import static java.lang.String.format;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(Scanner.class);
+public class UrlScanner {
 
-    private final Finder finder;
+    private final static Logger LOGGER = LoggerFactory.getLogger(UrlScanner.class);
+
+    private final UrlFinder urlFinder;
     private final WebClient.Builder webClient;
 
-    public Scanner(Finder finder) {
-        this.finder = finder;
+    public UrlScanner(UrlFinder urlFinder) {
+        this.urlFinder = urlFinder;
         webClient = WebClient.builder();
     }
 
@@ -36,18 +38,16 @@ public class Scanner {
     private void handleError(Throwable t) {
         if (t instanceof WebClientResponseException) {
             WebClientResponseException o = (WebClientResponseException) t;
-            System.err.println(o.getRequest().getURI());
+            LOGGER.warn(format("Exception with URL[%s]", o.getRequest().getURI()));
         } else {
             LOGGER.warn(t.getMessage());
-//            t.printStackTrace();
         }
     }
 
     private void handleResponse(String s) {
         try {
-            finder.scan(new ByteArrayInputStream(s.getBytes()));
+            urlFinder.scan(new ByteArrayInputStream(s.getBytes()));
         } catch (Exception e) {
-//            e.printStackTrace();
             LOGGER.warn(e.getMessage());
         }
     }

@@ -1,6 +1,6 @@
 package com.webcrawler.service;
 
-import com.webcrawler.domain.Finder;
+import com.webcrawler.domain.UrlFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,7 +13,7 @@ import java.io.IOException;
 public class Crawler {
 
     @Autowired
-    private Finder finder;
+    private UrlFinder urlFinder;
 
     public void crawler(String url) {
         WebClient webClient = WebClient.create(url);
@@ -25,7 +25,7 @@ public class Crawler {
 
     private void handleResponse(String s) {
         try {
-            finder.scan(new ByteArrayInputStream(s.getBytes()));
+            urlFinder.scan(new ByteArrayInputStream(s.getBytes()));
         } catch (IOException e) {
             e.printStackTrace();
         }

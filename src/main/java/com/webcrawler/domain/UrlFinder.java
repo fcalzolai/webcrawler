@@ -8,14 +8,14 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class Finder {
+public class UrlFinder {
 
     private static final String WORD = "href=";
 
-    private Consumer<Set<Link>> consumer;
-    private Set<Link> newLinks;
+    private Consumer<Set<String>> consumer;
+    private Set<String> newLinks;
 
-    public void setConsumer(Consumer<Set<Link>> consumer) {
+    public void setConsumer(Consumer<Set<String>> consumer) {
         this.consumer = consumer;
     }
 
@@ -42,7 +42,7 @@ public class Finder {
             if (index != -1) {
                 String link = Utils.extractLinkFromHref(line, WORD, index);
                 if(link.length() > 0) {
-                    newLinks.add(new Link(link));
+                    newLinks.add(link);
                     index += link.length();
                 } else {
                     index++;

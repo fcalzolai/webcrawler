@@ -25,6 +25,7 @@ public class ScanManagerTest {
     private static final String HALIFAX = "https://www.halifax.co.uk/";
     private static final String REP = "https://www.repubblica.it/";
     private static final String CORRIERE = "https://www.corriere.it";
+    private static final String CHIMA = "https://www.chima.it/";
 
     @BeforeClass
     public static void beforeClass(){
@@ -34,10 +35,10 @@ public class ScanManagerTest {
 
     @Test
     public void test() {
-        ScanManager scanManager = new ScanManager(REP);
+        ScanManager scanManager = new ScanManager(CHIMA);
 
-        await().atLeast(10, TimeUnit.SECONDS)
-                .atMost(30, TimeUnit.SECONDS)
+        await().atLeast(80, TimeUnit.SECONDS)
+                .atMost(100, TimeUnit.SECONDS)
                 .until(() -> scanManager.getLinksSize() > 0);
         scanManager.shoutDown();
         Map<Link, Set<Link>> links = scanManager.getLinks();
@@ -57,7 +58,7 @@ public class ScanManagerTest {
     }
 
     private static void setAwaitility() {
-        Awaitility.setDefaultPollInterval(10, TimeUnit.SECONDS);
+        Awaitility.setDefaultPollInterval(80, TimeUnit.SECONDS);
         Awaitility.setDefaultPollDelay(Duration.ZERO);
         Awaitility.setDefaultTimeout(Duration.TEN_MINUTES);
     }

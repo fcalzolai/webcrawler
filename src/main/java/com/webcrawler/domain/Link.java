@@ -28,4 +28,9 @@ public class Link {
     public int hashCode() {
         return hashCode;
     }
+
+    @Override
+    public String toString() {
+        return link;
+    }
 }

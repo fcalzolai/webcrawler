@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class FinderTest {
+public class UrlFinderTest {
 
     private static final String FILE_TO_SCAN = "lbg.html";
 
@@ -16,13 +16,13 @@ public class FinderTest {
         InputStream is = getClass().getClassLoader().getResourceAsStream(FILE_TO_SCAN);
 
         AtomicInteger count = new AtomicInteger(0);
-        Finder finder = new Finder();
-        finder.setConsumer(s -> {
+        UrlFinder urlFinder = new UrlFinder();
+        urlFinder.setConsumer(s -> {
             System.out.println(s);
             count.incrementAndGet();
         });
 
-        finder.scan(is);
+        urlFinder.scan(is);
         Assert.assertTrue(count.get() > 0);
         System.out.println(count);
     }
