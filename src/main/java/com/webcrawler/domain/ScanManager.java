@@ -15,8 +15,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.String.format;
-
 public class ScanManager {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ScanManager.class);
@@ -95,21 +93,9 @@ public class ScanManager {
 
     private void initThreads() {
         for (int i = 0; i < N_THREADS; i++) {
-            executor.scheduleWithFixedDelay(getTask(i), INITIAL_DELAY, DELAY, TimeUnit.MILLISECONDS);
+            Scanner scanner = new Scanner("T"+i, this);
+            executor.scheduleWithFixedDelay(scanner, INITIAL_DELAY, DELAY, TimeUnit.MILLISECONDS);
         }
-    }
-
-    private Thread getTask(int i) {
-        return new Thread("T"+i) {
-            @Override
-            public void run() {
-                try {
-                    scanLink();
-                } catch (InterruptedException e) {
-                    LOGGER.warn(e.getMessage());
-                }
-            }
-        };
     }
 
     private boolean isInternalLink(Link link) {
@@ -125,27 +111,18 @@ public class ScanManager {
         return false;
     }
 
-    private void scanLink() throws InterruptedException {
-        UrlFinder urlFinder = new UrlFinder();
-        UrlScanner urlScanner = new UrlScanner(urlFinder);
-
-        Link path = getLinkToScan();
-        urlFinder.setConsumer(newLinks -> newLinksFound(path, newLinks));
-        urlScanner.scan(getFullUrlToScan(path));
-        LOGGER.debug(format("Scanned: Thread[%s] - toBeScanned[%s] - links[%s]",
-                Thread.currentThread().getName(),
-                toBeScanned.size(),
-                links.size()));
-    }
-
-    private Link getLinkToScan() throws InterruptedException {
+    protected Link getLinkToScan() throws InterruptedException {
         Link path = toBeScanned.take();  //Blocking invocation
         links.computeIfAbsent(path, s -> new HashSet<>());
         return path;
     }
 
-    private String getFullUrlToScan(Link path) {
+    protected String getFullUrlToScan(Link path) {
         String link = path.getLink();
         return (link.contains(baseUrl)) ? link : baseUrl + link;
+    }
+
+    public int getLinksToBeScannedSize() {
+        return toBeScanned.size();
     }
 }

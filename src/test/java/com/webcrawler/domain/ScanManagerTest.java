@@ -49,15 +49,19 @@ public class ScanManagerTest {
 
         List<Link> collect = links.values().stream()
                 .flatMap(Collection::stream)
-//                .distinct()
                 .collect(Collectors.toList());
 
-        List<Link> collect1 = collect.stream()
+        List<Link> distinct = collect.stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<Link> duplicated = collect.stream()
                 .filter(s -> Collections.frequency(collect, s) > 1)
                 .sorted(Comparator.comparing(Link::getLink))
                 .collect(Collectors.toList());
 
-        System.out.println(collect1.size());
+        System.out.println("Duplicated: " + duplicated.size());
+        System.out.println("Distinct: " + distinct.size());
     }
 
     private static void setAwaitility() {
