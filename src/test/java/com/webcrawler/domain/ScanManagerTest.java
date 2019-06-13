@@ -2,6 +2,7 @@ package com.webcrawler.domain;
 
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -16,6 +17,7 @@ public class ScanManagerTest {
     private static final String LLOYDS = "https://www.lloydsbank.com/";
     private static final String HALIFAX = "https://www.halifax.co.uk/";
     private static final String REP = "https://www.repubblica.it/";
+    private static final String CORRIERE = "https://www.corriere.it";
 
     @BeforeClass
     public static void beforeClass(){
@@ -26,13 +28,16 @@ public class ScanManagerTest {
 
     @Test
     public void test() {
-        ScanManager scanManager = new ScanManager(REP);
+        ScanManager scanManager = new ScanManager(HALIFAX);
 
         await().atLeast(3, TimeUnit.SECONDS)
-                .atMost(30000, TimeUnit.SECONDS)
-               .until(() -> scanManager.getToBeScanned().isEmpty());
+                .atMost(30, TimeUnit.SECONDS)
+//               .until(() -> scanManager.getToBeScanned().isEmpty());
+               .until(() -> scanManager.getLinks().size() > 0);
         scanManager.shoutDown();
         Map<String, Set<String>> links = scanManager.getLinks();
+        Assert.assertTrue(!links.isEmpty());
+
         System.out.println(links.size());
     }
 }

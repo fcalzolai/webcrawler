@@ -5,6 +5,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Duration;
 
 public class Scanner {
 
@@ -17,26 +18,34 @@ public class Scanner {
     }
 
     public void scan(String url) {
-        webClient.baseUrl(url)
-                .build()
-                .get()
-                .retrieve()
-                .bodyToMono(String.class)
-                .subscribe(this::handleResponse, t -> {
-                    if (t instanceof WebClientResponseException) {
-                        WebClientResponseException o = (WebClientResponseException) t;
-                        System.err.println(o.getRequest().getURI());
-                    } else {
-                        t.printStackTrace();
-                    }
-                });
+        try {
+            String block = webClient.baseUrl(url)
+                    .build()
+                    .get()
+                    .retrieve()
+                    .bodyToMono(String.class)
+//                .subscribe(this::handleResponse, this::handleError);
+                    .block();
+            handleResponse(block);
+        } catch (Throwable t) {
+            handleError(t);
+        }
+    }
+
+    private void handleError(Throwable t) {
+        if (t instanceof WebClientResponseException) {
+            WebClientResponseException o = (WebClientResponseException) t;
+            System.err.println(o.getRequest().getURI());
+        } else {
+            t.printStackTrace();
+        }
     }
 
     private void handleResponse(String s) {
         try {
             finder.scan(new ByteArrayInputStream(s.getBytes()));
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+//            e.printStackTrace();
         }
     }
 }

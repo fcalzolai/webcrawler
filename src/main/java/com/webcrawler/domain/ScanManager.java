@@ -39,6 +39,7 @@ public class ScanManager {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         loggerContext.getLogger("io.netty").setLevel(Level.INFO);
         loggerContext.getLogger("reactor.netty").setLevel(Level.INFO);
+        loggerContext.getLogger("org.springframework.web.reactive.function.client").setLevel(Level.INFO);
     }
 
     public Map<String, Set<String>> getLinks() {
@@ -49,28 +50,29 @@ public class ScanManager {
         return toBeScanned;
     }
 
-    public void newLinkFound(String src, String dest) {
-        if(isInternalLink(dest)) {
-            if (shouldBeScanned(dest)) {
-                new Thread(() -> {
-                    try {
-                        toBeScanned.put(dest);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+    public void newLinksFound(String src, Set<String> newLinks) {
+        new Thread(() -> newLinks.forEach(dest -> {
+            try {
+                if (isInternalLink(dest)) {
+                    if (shouldBeScanned(dest)) {
+                        toBeScanned.put(dest);  //Blocking method
                     }
-                }).start();
-            }
 
-            links.computeIfAbsent(src, s -> new HashSet<>())
-                    .add(dest);
-            System.err.println(Thread.currentThread().getName()+"-["+toBeScanned.size()+"]"+src + " --> " + dest);
-        }
+                    links.computeIfAbsent(src, s -> new HashSet<>())
+                            .add(dest);
+                    System.err.println(Thread.currentThread().getName() + "-[" + toBeScanned.size() + "]" + src + " --> " + dest);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        })).start();
     }
 
     private boolean shouldBeScanned(String url){
         return !url.endsWith(".css")
                 && !url.endsWith(".ico")
                 && !url.endsWith(".gif")
+                && !url.endsWith(".pdf")
                 && !links.keySet().contains(url);
     }
 
@@ -107,7 +109,7 @@ public class ScanManager {
 
         while (true) {
             String path = toBeScanned.take();  //Blocking invocation
-            finder.setConsumer(s -> newLinkFound(path, s));
+            finder.setConsumer(links -> newLinksFound(path, links));
             String url = (path.contains(baseUrl))? path : baseUrl + path;
             scanner.scan(url);
         }
