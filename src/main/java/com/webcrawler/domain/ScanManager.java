@@ -17,8 +17,8 @@ public class ScanManager {
     private static final int CAPACITY = 2_000;
 
     private final String baseUrl;
-    private final BlockingQueue<String> toBeScanned;
-    private final Map<String, Set<String>> links;
+    private final BlockingQueue<Link> toBeScanned;
+    private final Map<Link, Set<Link>> links;
     private final ScheduledExecutorService executor;
 
     public ScanManager(String baseUrl) {
@@ -28,14 +28,14 @@ public class ScanManager {
         executor = Executors.newScheduledThreadPool(N_THREADS);
 
         initThreads();
-        toBeScanned.add(baseUrl);
+        toBeScanned.add(new Link(baseUrl));
     }
 
-    public Map<String, Set<String>> getLinks() {
+    public Map<Link, Set<Link>> getLinks() {
         return new HashMap<>(links);
     }
 
-    public void newLinksFound(String src, Set<String> newLinks) {
+    public void newLinksFound(Link src, Set<Link> newLinks) {
         new Thread(() -> {
             newLinks.forEach(dest -> {
                 try {
@@ -54,7 +54,8 @@ public class ScanManager {
         }).start();
     }
 
-    private boolean shouldBeScanned(String url){
+    private boolean shouldBeScanned(Link link){
+        String url = link.getLink();
         return !url.endsWith(".css")
                 && !url.endsWith(".ico")
                 && !url.endsWith(".gif")
@@ -81,7 +82,8 @@ public class ScanManager {
         };
     }
 
-    private boolean isInternalLink(String dest) {
+    private boolean isInternalLink(Link link) {
+        String dest = link.getLink();
         if(dest.startsWith("http")
                 || dest.startsWith("//")) {
             return dest.contains(baseUrl);
@@ -97,9 +99,10 @@ public class ScanManager {
         Finder finder = new Finder();
         Scanner scanner = new Scanner(finder);
 
-        String path = toBeScanned.take();  //Blocking invocation
-        finder.setConsumer(links -> newLinksFound(path, links));
-        String url = (path.contains(baseUrl)) ? path : baseUrl + path;
+        Link path = toBeScanned.take();  //Blocking invocation
+        finder.setConsumer(newLinks -> newLinksFound(path, newLinks));
+        String link = path.getLink();
+        String url = (link.contains(baseUrl)) ? link : baseUrl + link;
         scanner.scan(url);
         System.err.println("["+Thread.currentThread().getName()+"] - toBeScanned["+toBeScanned.size()+"] - links["+links.size()+"]");
     }

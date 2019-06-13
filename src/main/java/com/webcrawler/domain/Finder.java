@@ -12,10 +12,10 @@ public class Finder {
 
     private static final String WORD = "href=";
 
-    private Consumer<Set<String>> consumer;
-    private Set<String> newLinks;
+    private Consumer<Set<Link>> consumer;
+    private Set<Link> newLinks;
 
-    public void setConsumer(Consumer<Set<String>> consumer) {
+    public void setConsumer(Consumer<Set<Link>> consumer) {
         this.consumer = consumer;
     }
 
@@ -42,7 +42,7 @@ public class Finder {
             if (index != -1) {
                 String link = Utils.extractLinkFromHref(line, WORD, index);
                 if(link.length() > 0) {
-                    newLinks.add(link);
+                    newLinks.add(new Link(link));
                     index += link.length();
                 } else {
                     index++;

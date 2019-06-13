@@ -9,9 +9,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.awaitility.Awaitility.await;
 
@@ -30,16 +34,26 @@ public class ScanManagerTest {
 
     @Test
     public void test() {
-        ScanManager scanManager = new ScanManager(LLOYDS);
+        ScanManager scanManager = new ScanManager(REP);
 
         await().atLeast(10, TimeUnit.SECONDS)
                 .atMost(30, TimeUnit.SECONDS)
                 .until(() -> scanManager.getLinksSize() > 0);
         scanManager.shoutDown();
-        Map<String, Set<String>> links = scanManager.getLinks();
-        Assert.assertTrue(!links.isEmpty());
+        Map<Link, Set<Link>> links = scanManager.getLinks();
+        Assert.assertFalse(links.isEmpty());
 
         System.out.println(links.values().stream().mapToInt(Set::size).sum());
+        List<Link> collect = links.values().stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        List<Link> collect1 = collect.stream()
+                .filter(s -> Collections.frequency(collect, s) > 1)
+                .collect(Collectors.toList());
+
+        System.out.println(collect1.size());
+
     }
 
     private static void setAwaitility() {
