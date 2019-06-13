@@ -21,7 +21,7 @@ public class ScanManager {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ScanManager.class);
 
-    private static final int N_THREADS = 30;
+    private static final int N_THREADS = 10;
     private static final int CAPACITY = 2_000;
     private static final int INITIAL_DELAY = 0;
     private static final int DELAY = 500;
@@ -55,17 +55,16 @@ public class ScanManager {
 
     public void newLinksFound(Link src, Set<String> newLinks) {
         new Thread(() -> {
-            LOGGER.debug(format("NewLinksFound Src [%s] - new links found [%s]", src, newLinks.size()));
-            Set<Link> links = this.links.computeIfAbsent(src, s -> new HashSet<>());
+//            LOGGER.debug(format("NewLinksFound Src [%s] - new links found [%s]", src, newLinks.size()));
             newLinks.forEach(url -> {
-                Link link = getOrCreate(url);
+                Link dest = getOrCreate(url);
                 try {
-                    if (isInternalLink(link)) {
-                        if (shouldBeScanned(link)) {
-                            toBeScanned.put(link);  //Blocking method
+                    if (isInternalLink(dest)) {
+                        if (shouldBeScanned(dest)) {
+                            toBeScanned.put(dest);  //Blocking method
                         }
 
-                        links.add(link);
+                        links.get(src).add(dest);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -74,11 +73,16 @@ public class ScanManager {
         }).start();
     }
 
-    private Link getOrCreate(String url) {
+    private synchronized Link getOrCreate(String url) {
         Optional<Link> first = links.keySet().parallelStream()
                 .filter(link -> link.getLink().equals(url))
                 .findFirst();
-        return first.orElse(new Link(url));
+        return first.orElseGet(() ->
+                toBeScanned.parallelStream()
+                        .filter(link -> link.getLink().equals(url))
+                        .findFirst()
+                        .orElse(new Link(url))
+        );
     }
 
     private boolean shouldBeScanned(Link link){
@@ -125,13 +129,19 @@ public class ScanManager {
         UrlFinder urlFinder = new UrlFinder();
         UrlScanner urlScanner = new UrlScanner(urlFinder);
 
-        Link path = toBeScanned.take();  //Blocking invocation
+        Link path = getLinkToScan();
         urlFinder.setConsumer(newLinks -> newLinksFound(path, newLinks));
         urlScanner.scan(getFullUrlToScan(path));
         LOGGER.debug(format("Scanned: Thread[%s] - toBeScanned[%s] - links[%s]",
                 Thread.currentThread().getName(),
                 toBeScanned.size(),
                 links.size()));
+    }
+
+    private Link getLinkToScan() throws InterruptedException {
+        Link path = toBeScanned.take();  //Blocking invocation
+        links.computeIfAbsent(path, s -> new HashSet<>());
+        return path;
     }
 
     private String getFullUrlToScan(Link path) {

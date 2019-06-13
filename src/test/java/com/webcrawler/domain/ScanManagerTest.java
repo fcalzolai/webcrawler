@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,8 @@ public class ScanManagerTest {
     private static final String REP = "https://www.repubblica.it/";
     private static final String CORRIERE = "https://www.corriere.it";
     private static final String CHIMA = "https://www.chima.it/";
+    public static final int AT_LEAST_TIMEOUT = 60;
+    public static final int AT_MOST_TIMEOUT = 100;
 
     @BeforeClass
     public static void beforeClass(){
@@ -37,28 +40,28 @@ public class ScanManagerTest {
     public void test() {
         ScanManager scanManager = new ScanManager(CHIMA);
 
-        await().atLeast(80, TimeUnit.SECONDS)
-                .atMost(100, TimeUnit.SECONDS)
+        await().atLeast(AT_LEAST_TIMEOUT, TimeUnit.SECONDS)
+                .atMost(AT_MOST_TIMEOUT, TimeUnit.SECONDS)
                 .until(() -> scanManager.getLinksSize() > 0);
         scanManager.shoutDown();
         Map<Link, Set<Link>> links = scanManager.getLinks();
         Assert.assertFalse(links.isEmpty());
 
-        System.out.println(links.values().stream().mapToInt(Set::size).sum());
         List<Link> collect = links.values().stream()
                 .flatMap(Collection::stream)
+//                .distinct()
                 .collect(Collectors.toList());
 
         List<Link> collect1 = collect.stream()
                 .filter(s -> Collections.frequency(collect, s) > 1)
+                .sorted(Comparator.comparing(Link::getLink))
                 .collect(Collectors.toList());
 
         System.out.println(collect1.size());
-
     }
 
     private static void setAwaitility() {
-        Awaitility.setDefaultPollInterval(80, TimeUnit.SECONDS);
+        Awaitility.setDefaultPollInterval(AT_LEAST_TIMEOUT, TimeUnit.SECONDS);
         Awaitility.setDefaultPollDelay(Duration.ZERO);
         Awaitility.setDefaultTimeout(Duration.TEN_MINUTES);
     }
