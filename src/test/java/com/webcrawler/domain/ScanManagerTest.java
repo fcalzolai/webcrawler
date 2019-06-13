@@ -28,16 +28,15 @@ public class ScanManagerTest {
 
     @Test
     public void test() {
-        ScanManager scanManager = new ScanManager(HALIFAX);
+        ScanManager scanManager = new ScanManager(LLOYDS);
 
-        await().atLeast(3, TimeUnit.SECONDS)
+        await().atLeast(10, TimeUnit.SECONDS)
                 .atMost(30, TimeUnit.SECONDS)
-//               .until(() -> scanManager.getToBeScanned().isEmpty());
-               .until(() -> scanManager.getLinks().size() > 0);
+                .until(() -> scanManager.getLinksSize() > 0);
         scanManager.shoutDown();
         Map<String, Set<String>> links = scanManager.getLinks();
         Assert.assertTrue(!links.isEmpty());
 
-        System.out.println(links.size());
+        System.out.println(links.values().stream().mapToInt(Set::size).sum());
     }
 }

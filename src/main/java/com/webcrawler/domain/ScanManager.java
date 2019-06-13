@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ScanManager {
 
-    private static final int N_THREADS = 2;
-    private static final int CAPACITY = 200;
+    private static final int N_THREADS = 10;
+    private static final int CAPACITY = 2_000;
 
     private final String baseUrl;
     private final BlockingQueue<String> toBeScanned;
@@ -81,7 +81,7 @@ public class ScanManager {
 
     private void initThreads() {
         for (int i = 0; i < N_THREADS; i++) {
-            executor.scheduleWithFixedDelay(getTask(i), 0, 1, TimeUnit.SECONDS);
+            executor.scheduleWithFixedDelay(getTask(i), 0, 500, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -123,5 +123,9 @@ public class ScanManager {
 
     public void shoutDown(){
         executor.shutdown();
+    }
+
+    public int getLinksSize() {
+        return links.values().stream().mapToInt(Set::size).sum();
     }
 }
