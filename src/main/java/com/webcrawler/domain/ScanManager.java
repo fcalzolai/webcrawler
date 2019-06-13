@@ -3,6 +3,7 @@ package com.webcrawler.domain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,36 +12,43 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static java.lang.String.format;
 
 public class ScanManager {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ScanManager.class);
 
-    private static final int N_THREADS = 10;
-    private static final int CAPACITY = 2_000;
+    private static final int N_THREADS = 5;
     private static final int INITIAL_DELAY = 0;
     private static final int DELAY = 500;
 
     private final String baseUrl;
-    private final BlockingQueue<Link> toBeScanned;
+    private final ConcurrentSkipListSet<Link> toBeScanned;
     private final Map<Link, Set<Link>> links;
     private final ScheduledExecutorService executor;
 
     public ScanManager(String baseUrl) {
         this.baseUrl = baseUrl;
         links = new ConcurrentHashMap<>();
-        toBeScanned = new ArrayBlockingQueue<>(CAPACITY);
+        toBeScanned = new ConcurrentSkipListSet<>(Comparator.comparing(Link::getLink));
         executor = Executors.newScheduledThreadPool(N_THREADS);
 
-        initThreads();
         toBeScanned.add(new Link(baseUrl));
+        initThreads();
     }
 
     public void shoutDown(){
         executor.shutdown();
+        try {
+            executor.awaitTermination(1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOGGER.trace(e.getMessage());
+        }
     }
 
     public int getLinksSize() {
@@ -53,30 +61,26 @@ public class ScanManager {
 
     public void newLinksFound(Link src, Set<String> newLinks) {
         new Thread(() -> {
-//            LOGGER.debug(format("NewLinksFound Src [%s] - new links found [%s]", src, newLinks.size()));
+            LOGGER.debug(format("NewLinksFound Src [%s] - new links found [%s]", src, newLinks.size()));
             newLinks.forEach(url -> {
                 Link dest = getOrCreate(url);
-                try {
                     if (isInternalLink(dest)) {
                         if (shouldBeScanned(dest)) {
-                            toBeScanned.put(dest);  //Blocking method
+                            toBeScanned.add(dest);
                         }
 
                         links.get(src).add(dest);
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             });
         }).start();
     }
 
     private synchronized Link getOrCreate(String url) {
-        Optional<Link> first = links.keySet().parallelStream()
+        Optional<Link> first = toBeScanned.parallelStream()
                 .filter(link -> link.getLink().equals(url))
                 .findFirst();
         return first.orElseGet(() ->
-                toBeScanned.parallelStream()
+                links.keySet().parallelStream()
                         .filter(link -> link.getLink().equals(url))
                         .findFirst()
                         .orElse(new Link(url))
@@ -111,8 +115,8 @@ public class ScanManager {
         return false;
     }
 
-    protected Link getLinkToScan() throws InterruptedException {
-        Link path = toBeScanned.take();  //Blocking invocation
+    protected Link getLinkToScan() {
+        Link path = toBeScanned.pollFirst();
         links.computeIfAbsent(path, s -> new HashSet<>());
         return path;
     }

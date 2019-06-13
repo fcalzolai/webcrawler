@@ -27,12 +27,12 @@ public class Scanner extends Thread {
             Link path = scanManager.getLinkToScan();
             urlFinder.setConsumer(newLinks -> scanManager.newLinksFound(path, newLinks));
             urlScanner.scan(scanManager.getFullUrlToScan(path));
-            LOGGER.debug(format("Scanned: Thread[%s] - toBeScanned[%s] - links[%s]",
-                    Thread.currentThread().getName(),
+            LOGGER.debug(format("Scanned: [Thread%s] - toBeScanned[%s] - links[%s]",
+                    getName(),
                     scanManager.getLinksToBeScannedSize(),
                     scanManager.getLinksSize()));
-        } catch (InterruptedException e) {
-            LOGGER.warn(e.getMessage());
+        } catch (Throwable e) {
+            LOGGER.trace(e.getMessage());
         }
     }
 }
