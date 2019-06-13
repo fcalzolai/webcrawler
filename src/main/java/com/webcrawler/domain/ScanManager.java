@@ -1,9 +1,5 @@
 package com.webcrawler.domain;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,7 +22,6 @@ public class ScanManager {
     private final ScheduledExecutorService executor;
 
     public ScanManager(String baseUrl) {
-        setLogLevel();
         this.baseUrl = baseUrl;
         links = new ConcurrentHashMap<>();
         toBeScanned = new ArrayBlockingQueue<>(CAPACITY);
@@ -36,20 +31,8 @@ public class ScanManager {
         toBeScanned.add(baseUrl);
     }
 
-    private void setLogLevel() {
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext.getLogger("io.netty").setLevel(Level.INFO);
-        loggerContext.getLogger("reactor.netty").setLevel(Level.INFO);
-        loggerContext.getLogger("org.springframework.core.codec").setLevel(Level.INFO);
-        loggerContext.getLogger("org.springframework.web").setLevel(Level.INFO);
-    }
-
     public Map<String, Set<String>> getLinks() {
         return new HashMap<>(links);
-    }
-
-    public BlockingQueue<String> getToBeScanned() {
-        return toBeScanned;
     }
 
     public void newLinksFound(String src, Set<String> newLinks) {

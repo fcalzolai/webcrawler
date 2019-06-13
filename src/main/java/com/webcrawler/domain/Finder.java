@@ -40,7 +40,7 @@ public class Finder {
         while(index != -1){
             index = line.indexOf(WORD, index);
             if (index != -1) {
-                String link = extractLinkFromHref(line, WORD, index);
+                String link = Utils.extractLinkFromHref(line, WORD, index);
                 if(link.length() > 0) {
                     newLinks.add(link);
                     index += link.length();
@@ -51,30 +51,4 @@ public class Finder {
         }
     }
 
-    private String extractLinkFromHref(String line, String word, int index) {
-        try {
-            int startDoubleQuote = line.indexOf('"', index + word.length());
-            int startSingleQuote = line.indexOf('\'', index + word.length());
-            int start = minGreaterThanZero(startDoubleQuote, startSingleQuote);
-            int end = line.indexOf('"', start + 1);
-            return line.substring(start + 1, end);
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    private int minGreaterThanZero(int val1, int val2) {
-        if(val1 > 0
-           && val2 > 0) {
-            return Math.min(val1, val2);
-        } else if (val1 < 0
-            && val2 > 0) {
-            return val2;
-        } else if (val1 > 0
-                && val2 < 0) {
-            return val1;
-        } else {
-            return val1;
-        }
-    }
 }

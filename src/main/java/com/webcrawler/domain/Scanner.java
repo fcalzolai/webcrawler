@@ -1,13 +1,15 @@
 package com.webcrawler.domain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.time.Duration;
 
 public class Scanner {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(Scanner.class);
 
     private final Finder finder;
     private final WebClient.Builder webClient;
@@ -24,7 +26,6 @@ public class Scanner {
                     .get()
                     .retrieve()
                     .bodyToMono(String.class)
-//                .subscribe(this::handleResponse, this::handleError);
                     .block();
             handleResponse(block);
         } catch (Throwable t) {
@@ -37,7 +38,8 @@ public class Scanner {
             WebClientResponseException o = (WebClientResponseException) t;
             System.err.println(o.getRequest().getURI());
         } else {
-            t.printStackTrace();
+            LOGGER.warn(t.getMessage());
+//            t.printStackTrace();
         }
     }
 
@@ -46,6 +48,7 @@ public class Scanner {
             finder.scan(new ByteArrayInputStream(s.getBytes()));
         } catch (Exception e) {
 //            e.printStackTrace();
+            LOGGER.warn(e.getMessage());
         }
     }
 }

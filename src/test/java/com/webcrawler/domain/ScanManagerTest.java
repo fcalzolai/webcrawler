@@ -1,10 +1,13 @@
 package com.webcrawler.domain;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -21,9 +24,8 @@ public class ScanManagerTest {
 
     @BeforeClass
     public static void beforeClass(){
-        Awaitility.setDefaultPollInterval(10, TimeUnit.SECONDS);
-        Awaitility.setDefaultPollDelay(Duration.ZERO);
-        Awaitility.setDefaultTimeout(Duration.TEN_MINUTES);
+        setAwaitility();
+        setLogLevel();
     }
 
     @Test
@@ -38,5 +40,19 @@ public class ScanManagerTest {
         Assert.assertTrue(!links.isEmpty());
 
         System.out.println(links.values().stream().mapToInt(Set::size).sum());
+    }
+
+    private static void setAwaitility() {
+        Awaitility.setDefaultPollInterval(10, TimeUnit.SECONDS);
+        Awaitility.setDefaultPollDelay(Duration.ZERO);
+        Awaitility.setDefaultTimeout(Duration.TEN_MINUTES);
+    }
+
+    private static void setLogLevel() {
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getLogger("io.netty").setLevel(Level.INFO);
+        loggerContext.getLogger("reactor.netty").setLevel(Level.INFO);
+        loggerContext.getLogger("org.springframework.core.codec").setLevel(Level.INFO);
+        loggerContext.getLogger("org.springframework.web").setLevel(Level.INFO);
     }
 }
