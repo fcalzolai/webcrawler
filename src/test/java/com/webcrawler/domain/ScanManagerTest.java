@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,8 +26,8 @@ public class ScanManagerTest {
     private static final String REP = "https://www.repubblica.it/";
     private static final String CORRIERE = "https://www.corriere.it";
     private static final String CHIMA = "https://www.chima.it/";
-    public static final int AT_LEAST_TIMEOUT = 60;
-    public static final int AT_MOST_TIMEOUT = 100;
+    private static final int AT_LEAST_TIMEOUT = 600;
+    private static final int AT_MOST_TIMEOUT = AT_LEAST_TIMEOUT+30;
 
     @BeforeClass
     public static void beforeClass(){
@@ -37,13 +36,16 @@ public class ScanManagerTest {
     }
 
     @Test
-    public void test() {
-        ScanManager scanManager = new ScanManager(CHIMA);
+    public void test() throws InterruptedException {
+        ScanManager scanManager = new ScanManager(CORRIERE);
 
         await().atLeast(AT_LEAST_TIMEOUT, TimeUnit.SECONDS)
                 .atMost(AT_MOST_TIMEOUT, TimeUnit.SECONDS)
                 .until(() -> scanManager.getLinksSize() > 0);
         scanManager.shoutDown();
+
+        Thread.sleep(5_000);
+
         Map<Link, Set<Link>> links = scanManager.getLinks();
         Assert.assertFalse(links.isEmpty());
 
@@ -51,17 +53,16 @@ public class ScanManagerTest {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        List<Link> distinct = collect.stream()
+        long distinct = collect.stream()
                 .distinct()
-                .collect(Collectors.toList());
+                .count();
 
-        List<Link> duplicated = collect.stream()
-                .filter(s -> Collections.frequency(collect, s) > 1)
-                .sorted(Comparator.comparing(Link::getLink))
-                .collect(Collectors.toList());
-
-        System.out.println("Duplicated: " + duplicated.size());
-        System.out.println("Distinct: " + distinct.size());
+//        long duplicated = collect.stream()
+//                .filter(s -> Collections.frequency(collect, s) > 1)
+//                .count();
+//
+//        System.out.println("Duplicated: " + duplicated);
+        System.out.println("ToBeScanned:"+scanManager.getToBeScannedSize()+" - Distinct: " + distinct);
     }
 
     private static void setAwaitility() {

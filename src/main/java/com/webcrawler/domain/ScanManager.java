@@ -13,6 +13,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
+
 public class ScanManager {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ScanManager.class);
@@ -58,5 +60,12 @@ public class ScanManager {
             Scanner scanner = new Scanner("T"+i, baseUrl, toBeScanned, links);
             executor.scheduleWithFixedDelay(scanner, INITIAL_DELAY, DELAY, TimeUnit.MILLISECONDS);
         }
+        executor.scheduleWithFixedDelay(()-> LOGGER.debug(format("toBeScanned[%s] - links[%s]",
+                toBeScanned.size(),
+                getLinksSize())), INITIAL_DELAY, 30, TimeUnit.SECONDS);
+    }
+
+    public int getToBeScannedSize() {
+        return toBeScanned.size();
     }
 }

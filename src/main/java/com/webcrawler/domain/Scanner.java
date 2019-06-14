@@ -40,10 +40,10 @@ public class Scanner extends Thread {
             Link path = getLinkToScan();
             urlFinder.setConsumer(newLinks -> newLinksFound(path, newLinks));
             urlScanner.scan(getFullUrlToScan(path));
-            LOGGER.debug(format("Scanned: [Thread%s] - toBeScanned[%s] - links[%s]",
-                    getName(),
-                    toBeScanned.size(),
-                    getLinksSize()));
+//            LOGGER.debug(format("Scanned: [Thread%s] - toBeScanned[%s] - links[%s]",
+//                    getName(),
+//                    toBeScanned.size(),
+//                    getLinksSize()));
         } catch (Throwable e) {
             LOGGER.trace(e.getMessage());
         }
@@ -67,7 +67,7 @@ public class Scanner extends Thread {
 
     private void newLinksFound(Link src, Set<String> newLinks) {
         new Thread(() -> {
-            LOGGER.debug(format("NewLinksFound Src [%s] - new links found [%s]", src, newLinks.size()));
+//            LOGGER.debug(format("NewLinksFound Src [%s] - new links found [%s]", src, newLinks.size()));
             newLinks.forEach(url -> {
                 Link dest = getOrCreate(url);
                 if (isInternalLink(dest)) {
