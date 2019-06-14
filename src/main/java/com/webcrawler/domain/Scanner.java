@@ -9,8 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import static java.lang.String.format;
-
 public class Scanner extends Thread {
 
     private final Logger LOGGER = LoggerFactory.getLogger(Scanner.class);
@@ -37,19 +35,15 @@ public class Scanner extends Thread {
     @Override
     public void run() {
         try {
-            Link path = getLinkToScan();
-            urlFinder.setConsumer(newLinks -> newLinksFound(path, newLinks));
-            urlScanner.scan(getFullUrlToScan(path));
-//            LOGGER.debug(format("Scanned: [Thread%s] - toBeScanned[%s] - links[%s]",
-//                    getName(),
-//                    toBeScanned.size(),
-//                    getLinksSize()));
-        } catch (Throwable e) {
+            Link link = getNextLinkToScan();
+            urlFinder.setConsumer(newLinks -> newLinksFound(link, newLinks));
+            urlScanner.scan(getFullUrlToScan(link));
+        } catch (Exception e) {
             LOGGER.trace(e.getMessage());
         }
     }
 
-    private Link getLinkToScan() {
+    private Link getNextLinkToScan() {
         Link path = toBeScanned.pollFirst();
         links.computeIfAbsent(path, s -> new HashSet<>());
         return path;
@@ -64,21 +58,17 @@ public class Scanner extends Thread {
         return links.values().stream().mapToInt(Set::size).sum();
     }
 
-
-    private void newLinksFound(Link src, Set<String> newLinks) {
-        new Thread(() -> {
-//            LOGGER.debug(format("NewLinksFound Src [%s] - new links found [%s]", src, newLinks.size()));
-            newLinks.forEach(url -> {
-                Link dest = getOrCreate(url);
-                if (isInternalLink(dest)) {
-                    if (shouldBeScanned(dest)) {
-                        toBeScanned.add(dest);
-                    }
-
-                    links.get(src).add(dest);
+    private void newLinksFound(Link src, Set<String> destLinks) {
+        destLinks.forEach(url -> {
+            Link dest = getOrCreate(url);
+            if (isInternalLink(dest)) {
+                if (shouldBeScanned(dest)) {
+                    toBeScanned.add(dest);
                 }
-            });
-        }).start();
+
+                links.get(src).add(dest);
+            }
+        });
     }
 
     private synchronized Link getOrCreate(String url) {

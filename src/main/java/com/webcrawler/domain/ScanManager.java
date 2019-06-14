@@ -60,8 +60,9 @@ public class ScanManager {
             Scanner scanner = new Scanner("T"+i, baseUrl, toBeScanned, links);
             executor.scheduleWithFixedDelay(scanner, INITIAL_DELAY, DELAY, TimeUnit.MILLISECONDS);
         }
-        executor.scheduleWithFixedDelay(()-> LOGGER.debug(format("toBeScanned[%s] - links[%s]",
+        executor.scheduleWithFixedDelay(()-> LOGGER.debug(format("toBeScanned[%s] - state[%s] edges[%s]",
                 toBeScanned.size(),
+                links.keySet().size(),
                 getLinksSize())), INITIAL_DELAY, 30, TimeUnit.SECONDS);
     }
 
