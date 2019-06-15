@@ -5,10 +5,13 @@ For further reference, please consider the following sections:
 
 * [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
 
-To compile
-'./mvnw clean install
-'
+To compile:
+`
+mvn clean install
+`
 
 To run
-'./mvnw'
+`
+mvn spring-boot:run
+`
 

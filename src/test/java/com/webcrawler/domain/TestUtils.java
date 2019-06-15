@@ -15,8 +15,8 @@ public class TestUtils {
     public static final String REP = "https://www.repubblica.it/";
     public static final String CORRIERE = "https://www.corriere.it";
     public static final String CHIMA = "https://www.chima.it/";
-    public static final int AT_LEAST_TIMEOUT = 600;
-    public static final int AT_MOST_TIMEOUT = AT_LEAST_TIMEOUT+30;
+    public static final int AT_LEAST_TIMEOUT = 5;
+    public static final int AT_MOST_TIMEOUT = AT_LEAST_TIMEOUT+3;
 
     public static void setAwaitility() {
         Awaitility.setDefaultPollInterval(AT_LEAST_TIMEOUT, TimeUnit.SECONDS);

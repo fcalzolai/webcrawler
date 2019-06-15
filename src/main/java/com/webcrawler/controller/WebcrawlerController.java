@@ -16,7 +16,7 @@ public class WebcrawlerController {
     @Autowired
     private WebCrawlerService webCrawlerService;
 
-    @GetMapping("/getStats/{baseurl}/nthreads/{nthreads}/delay/{delay}}")
+    @GetMapping("/getStats/{baseurl}/nthreads/{nthreads}/delay/{delay}")
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<GetStatsResponse> getStats (
                     @PathVariable("baseurl") String baseUrl,
@@ -24,6 +24,13 @@ public class WebcrawlerController {
                     @PathVariable("nthreads") int delay
             ) {
         GetStatsResponse response = webCrawlerService.getScanManager(baseUrl, nthreads, delay);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/getStats/{baseurl}")
+    @ResponseStatus(HttpStatus.OK)
+    ResponseEntity<GetStatsResponse> getStats (@PathVariable("baseurl") String baseUrl) {
+        GetStatsResponse response = webCrawlerService.getScanManager(baseUrl);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
