@@ -27,6 +27,7 @@ public class WebCrawlerService {
         GetStatsResponse response = new GetStatsResponse();
         response.setToBeScanned(scanManager.getToBeScannedSize());
         response.setEdges(scanManager.getEdgesSize());
+        response.setLinks(scanManager.getLinksSize());
         return response;
     }
 
