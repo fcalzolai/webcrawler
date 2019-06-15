@@ -19,20 +19,20 @@ public class ScanManager {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ScanManager.class);
 
-    private static final int N_THREADS = 20;
-    private static final int INITIAL_DELAY = 0;
-    private static final int DELAY = 500;
-
     private final String baseUrl;
+    private int nThreads;
+    private int deelay;
     private final ConcurrentSkipListSet<Link> toBeScanned;
     private final Map<Link, Set<Link>> links;
     private final ScheduledExecutorService executor;
 
-    public ScanManager(String baseUrl) {
+    public ScanManager(String baseUrl, int nThreads, int delay) {
         this.baseUrl = baseUrl;
+        this.nThreads = nThreads;
+        this.deelay = delay;
         links = new ConcurrentHashMap<>();
         toBeScanned = new ConcurrentSkipListSet<>(Comparator.comparing(Link::getLink));
-        executor = Executors.newScheduledThreadPool(N_THREADS);
+        executor = Executors.newScheduledThreadPool(nThreads);
 
         toBeScanned.add(new Link(baseUrl));
         initThreads();
@@ -47,7 +47,7 @@ public class ScanManager {
         }
     }
 
-    public int getLinksSize() {
+    public int getEdgesSize() {
         return links.values().stream().mapToInt(Set::size).sum();
     }
 
@@ -56,17 +56,25 @@ public class ScanManager {
     }
 
     private void initThreads() {
-        for (int i = 0; i < N_THREADS; i++) {
+        for (int i = 0; i < nThreads; i++) {
             Scanner scanner = new Scanner("T"+i, baseUrl, toBeScanned, links);
-            executor.scheduleWithFixedDelay(scanner, INITIAL_DELAY, DELAY, TimeUnit.MILLISECONDS);
+            executor.scheduleWithFixedDelay(scanner, 0, deelay, TimeUnit.MILLISECONDS);
         }
         executor.scheduleWithFixedDelay(()-> LOGGER.debug(format("toBeScanned[%s] - state[%s] edges[%s]",
                 toBeScanned.size(),
                 links.keySet().size(),
-                getLinksSize())), INITIAL_DELAY, 30, TimeUnit.SECONDS);
+                getEdgesSize())), 0, 30, TimeUnit.SECONDS);
     }
 
     public int getToBeScannedSize() {
         return toBeScanned.size();
+    }
+
+    public String getBasUrl() {
+        return baseUrl;
+    }
+
+    public int getLinksSize(){
+        return links.keySet().size();
     }
 }

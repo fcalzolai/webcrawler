@@ -1,5 +1,7 @@
 package com.webcrawler.domain;
 
+import com.webcrawler.Utils;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;

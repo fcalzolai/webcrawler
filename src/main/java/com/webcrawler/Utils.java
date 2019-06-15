@@ -1,6 +1,10 @@
-package com.webcrawler.domain;
+package com.webcrawler;
 
 public class Utils {
+
+    public static final int N_THREADS = 20;
+    public static final int INITIAL_DELAY = 0;
+    public static final int DELAY = 500;
 
     public static String extractLinkFromHref(String line, String word, int index) {
         try {
