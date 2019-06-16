@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class WebCrawlerServiceTest {
 
-    private static final String BASE_URL = TestUtils.CORRIERE;
+    private static final String BASE_URL = TestUtils.MONZO;
 
     private WebCrawlerService webCrawlerService;
 
@@ -17,6 +17,7 @@ public class WebCrawlerServiceTest {
     public void before(){
         TestUtils.setLogLevel();
         webCrawlerService = new WebCrawlerService();
+        webCrawlerService.getScanManager(BASE_URL);
     }
 
     @After
@@ -34,8 +35,9 @@ public class WebCrawlerServiceTest {
         Assert.assertNotNull(stats);
         System.out.println(stats);
 
-        Thread.sleep(5_000);
-        stats = webCrawlerService.getScanManager(TestUtils.CORRIERE);
+        Thread.sleep(3_000);
+        stats = webCrawlerService.getScanManager(BASE_URL);
         System.out.println(stats);
+        Assert.assertNotNull(stats);
     }
 }

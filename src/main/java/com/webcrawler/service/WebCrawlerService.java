@@ -45,10 +45,14 @@ public class WebCrawlerService {
     }
 
     public void stopScanManager(String baseUrl) {
-        scanManagers.stream()
+        Optional<ScanManager> first = scanManagers.stream()
                 .filter(scanManager -> scanManager.getBasUrl().equals(baseUrl))
-                .findFirst()
-                .ifPresent(ScanManager::shoutDown);
+                .findFirst();
+        first.ifPresent(scanManager -> {
+            scanManager.shoutDown();
+            scanManagers.remove(scanManager);
+            System.gc();
+        });
     }
 
     public GetDataResponse getScanManagerData(String baseUrl, int maxLinks, int maxDest) {

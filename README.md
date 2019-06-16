@@ -15,7 +15,10 @@ To run
 mvn spring-boot:run
 ```
 
-Check 
-* http://localhost:8080/isActive
+Active endpoints 
+* http://localhost:8080/isActive to check if the application is running
+* http://localhost:8080/getStats to start crawling an URL
+* http://localhost:8080/getLinks to get the link transition matrix
+* http://localhost:8080/stop to stop crawling an URL
 
-TODO Uodate README.md
+In order to make it easier to test this app, I've created a Postman project.

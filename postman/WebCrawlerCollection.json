@@ -1,0 +1,122 @@
+{
+	"info": {
+		"_postman_id": "d2266b0c-3540-4d4b-a621-680805b177bc",
+		"name": "web crawler",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/isActive",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/isActive",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"isActive"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/start",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"baseUrl\": \"{{baseUrl}}\",\n\t\"nThreads\": 20,\n\t\"delay\": 500\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/getStats",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"getStats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/get",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"baseUrl\": \"{{baseUrl}}\",\n\t\"maxLinks\": 5,\n\t\"maxDest\": 10\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/getLinks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"getLinks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/stop",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"baseUrl\": \"{{baseUrl}}\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/stop",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"stop"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

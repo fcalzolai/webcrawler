@@ -10,11 +10,10 @@ import java.util.concurrent.TimeUnit;
 
 public class TestUtils {
 
-    public static final String LLOYDS = "https://www.lloydsbank.com/";
-    public static final String HALIFAX = "https://www.halifax.co.uk/";
-    public static final String REP = "https://www.repubblica.it/";
+    public static final String BBC = "https://www.bbc.co.uk/";
     public static final String CORRIERE = "https://www.corriere.it";
     public static final String CHIMA = "https://www.chima.it/";
+    public static final String MONZO = "https://monzo.com";
     public static final int AT_LEAST_TIMEOUT = 5;
     public static final int AT_MOST_TIMEOUT = AT_LEAST_TIMEOUT+3;
 

@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class UrlFinderTest {
 
-    private static final String FILE_TO_SCAN = "lbg.html";
+    private static final String FILE_TO_SCAN = "monzo.html";
 
     @Test
     public void findWord() throws IOException {
@@ -18,12 +18,11 @@ public class UrlFinderTest {
         AtomicInteger count = new AtomicInteger(0);
         UrlFinder urlFinder = new UrlFinder();
         urlFinder.setConsumer(s -> {
-            System.out.println(s);
+            System.out.println(s.size());
             count.incrementAndGet();
         });
 
         urlFinder.scan(is);
         Assert.assertTrue(count.get() > 0);
-        System.out.println(count);
     }
 }
