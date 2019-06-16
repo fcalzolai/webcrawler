@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -76,5 +77,15 @@ public class ScanManager {
 
     public int getLinksSize(){
         return links.keySet().size();
+    }
+
+    public GetDataResponse getScanManagerData(int maxLinks, int maxDest) {
+        Map<Link, Set<Link>> newLinks = new HashMap<>();
+        links.entrySet()
+                .stream()
+                .limit(maxLinks).forEach(e -> newLinks.put(e.getKey(), e.getValue().stream().limit(maxDest).collect(Collectors.toSet()))
+        );
+
+        return new GetDataResponse(newLinks);
     }
 }

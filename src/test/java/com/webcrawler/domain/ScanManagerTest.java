@@ -23,7 +23,7 @@ public class ScanManagerTest {
     }
 
     @Test
-    public void test() throws InterruptedException {
+    public void testGetStats() throws InterruptedException {
         ScanManager scanManager = new ScanManager(TestUtils.CORRIERE, Utils.N_THREADS, Utils.DELAY);
 
         await().atLeast(TestUtils.AT_LEAST_TIMEOUT, TimeUnit.SECONDS)
@@ -47,4 +47,15 @@ public class ScanManagerTest {
         System.out.println("ToBeScanned:"+scanManager.getToBeScannedSize()+" - Distinct: " + distinct);
     }
 
+    @Test
+    public void testGetLink() throws InterruptedException {
+        ScanManager scanManager = new ScanManager(TestUtils.CORRIERE, Utils.N_THREADS, Utils.DELAY);
+
+        Thread.sleep(3_000);
+
+        GetDataResponse scanManagerData = scanManager.getScanManagerData(2, 10);
+        System.out.println(scanManagerData);
+        scanManager.shoutDown();
+        Assert.assertFalse(scanManagerData.getLinks().isEmpty());
+    }
 }

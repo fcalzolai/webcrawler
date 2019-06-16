@@ -1,6 +1,7 @@
 package com.webcrawler.service;
 
 import com.webcrawler.Utils;
+import com.webcrawler.domain.GetDataResponse;
 import com.webcrawler.domain.GetStatsResponse;
 import com.webcrawler.domain.ScanManager;
 import org.springframework.stereotype.Service;
@@ -48,5 +49,13 @@ public class WebCrawlerService {
                 .filter(scanManager -> scanManager.getBasUrl().equals(baseUrl))
                 .findFirst()
                 .ifPresent(ScanManager::shoutDown);
+    }
+
+    public GetDataResponse getScanManagerData(String baseUrl, int maxLinks, int maxDest) {
+        return scanManagers.stream()
+                .filter(scanManager -> scanManager.getBasUrl().equals(baseUrl))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unable to find baseUrl ["+baseUrl+"]"))
+                .getScanManagerData(maxLinks, maxDest);
     }
 }
